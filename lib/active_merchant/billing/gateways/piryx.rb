@@ -129,6 +129,9 @@ module ActiveMerchant #:nodoc:
           post['State']   = address[:state].blank?  ? 'n/a' : address[:state]
           post['Zip']     = address[:zip].to_s
         end
+
+        post['Email'] = options[:email]
+
       end
       
       
@@ -138,6 +141,8 @@ module ActiveMerchant #:nodoc:
       
       def commit(action, params)
         headers = {}
+
+        params['CampaignCode'] = @options[:campaign] || "default"
         
         response = parse(ssl_post(base_url, post_data(action, params), headers))
         
@@ -196,7 +201,7 @@ module ActiveMerchant #:nodoc:
       end
 
       def post_data(action, params = {})
-        params['Signature'] = generate_signature('POST', params)        
+        params['Signature'] = generate_signature('POST', params).strip
         params.collect { |key, value| "#{key}=#{rfc3986_escape(value.to_s)}" }.join("&")
       end
   
